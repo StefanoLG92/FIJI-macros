@@ -1,0 +1,32 @@
+#Omit the first two lines of code for the first iteration as the ROI manager will be empty
+run("Clear Results");
+roiManager("delete");
+#the correct channel should be selected and duplicated
+run("Duplicate...", "duplicate channels=1");
+run("Remove Outliers...", "radius=8 threshold=50 which=Bright");
+run("Subtract Background...", "rolling=30");
+run("Brightness/Contrast...");
+resetMinAndMax();
+run("Apply LUT");
+#Draw the ROI within which the number of TBR2+ positive cells should be counted
+waitForUser("Draw ROI");
+roiManager("add");
+#Optimise threshold settings to capture all TBR2+ cells in the image 
+setAutoThreshold("Shanbhag dark");
+run("Threshold...");  // open Threshold tool
+  title2 = "WaitForUserDemo";
+  msg = "If necessary, use the \"Threshold\" tool to\nadjust the threshold, then click \"OK\".";
+  waitForUser(title2, msg);
+getThreshold(lower, upper);
+  if (lower==-1)
+      exit("Threshold was not set");
+setOption("BlackBackground", false);
+run("Convert to Mask");
+run("Watershed");
+run("Despeckle");
+run("Remove Outliers...", "radius=10 threshold=50 which=Dark");
+roiManager("select", 0)
+#Below the size of the particle should be adjusted manually depending on the noise level and any other potential artefact
+run("Analyze Particles...", "size=10.00-300.00 show=Outlines display include summarize add");
+nRoi = roiManager("count");
+print(nRoi);
