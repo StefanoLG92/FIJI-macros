@@ -1,6 +1,7 @@
 //Omit the first two lines of code for the first iteration as the ROI manager will be empty
-run("Clear Results");
-roiManager("delete");
+	run("Clear Results");
+	roiManager("delete");
+title = getTitle();
 //the correct channel should be selected and duplicated
 run("Duplicate...", "duplicate channels=1");
 run("Remove Outliers...", "radius=8 threshold=50 which=Bright");
@@ -9,6 +10,7 @@ run("Brightness/Contrast...");
 resetMinAndMax();
 run("Apply LUT");
 //Draw the ROI within which the number of TBR2+ positive cells should be counted
+setTool("polygon");
 waitForUser("Draw ROI");
 roiManager("add");
 //Optimise threshold settings to capture all TBR2+ cells in the image 
@@ -28,5 +30,9 @@ run("Remove Outliers...", "radius=10 threshold=50 which=Dark");
 roiManager("select", 0)
 //Below the size of the particle should be adjusted manually depending on the noise level and any other potential artefact
 run("Analyze Particles...", "size=10.00-300.00 show=Outlines display include summarize add");
+ //Delete the first ROI that was drawn by hand to avoid counting it as cell
+roiManager("select", 0);
+roiManager("Delete");
+//Count number of cells
 nRoi = roiManager("count");
 print(nRoi);
